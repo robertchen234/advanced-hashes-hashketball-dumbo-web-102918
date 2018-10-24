@@ -28,47 +28,51 @@ def game_hash
 end
 
 def num_points_scored(name)
-  game_hash.values.each do |data|
-    data[:players].each do |detail|
-      return detail[:points] if detail.values.include?(name)
+  game_hash.values.each do |datas|
+    datas[:players].each do |players|
+      return players[:points] if players.values.include?(name)
     end 
   end
 end
 
 def shoe_size(name)
-  game_hash.values.each do |data|
-    data[:players].each do |detail|
-      return detail[:shoe] if detail.values.include?(name)
+  game_hash.values.each do |datas|
+    datas[:players].each do |players|
+      return players[:shoe] if players.values.include?(name)
     end 
   end 
 end
 
 def team_colors(team)
-  game_hash.values.each do |data|
-    return data[:colors].map(&:capitalize) if data.values.include?(team)
+  game_hash.values.each do |datas|
+    return datas[:colors].map(&:capitalize) if datas.values.include?(team)
   end 
 end 
 
 def team_names
-  game_hash.values.map {|data| data[:team_name]}
+  teams = []
+  game_hash.values.each do |datas| 
+    teams << datas[:team_name] 
+  end
+  return teams
 end
  
 def player_numbers(team)
-  game_hash.values.each do |data|
-    if data.values.include?(team)
-      return data[:players].map do |detail|
-        detail[:number]
-      end
+  numbers = []
+  game_hash.values.each do |datas|
+    datas[:players].each do |players| 
+      numbers << players[:number] if datas.values.include?(team)
     end 
   end 
+  return numbers
 end 
 
 def player_stats(name)
-  game_hash.values.each do |data|
-    data[:players].each do |detail| 
-      if detail.values.include?(name)
-        detail.delete(:player_name)
-        return detail
+  game_hash.values.each do |datas|
+    datas[:players].each do |players| 
+      if players.values.include?(name)
+        players.delete(:player_name) 
+        return players
       end
     end
   end 
@@ -77,10 +81,57 @@ end
 def big_shoe_rebounds
   rebound = 0
   size = 0
-  game_hash.values.each do |data|
-    data[:players].each do |detail|
-      size = detail[:shoe] and rebound = detail[:rebounds] if detail[:shoe] > size
+  game_hash.values.each do |datas|
+    datas[:players].each do |players|
+      size = players[:shoe] and rebound = players[:rebounds] if players[:shoe] > size
     end 
   end 
-  rebound
+  return rebound
 end 
+
+def most_points_scored
+  highest = 0
+  player = nil
+  game_hash.values.each do |datas|
+    datas[:players].each do |players|
+      player = players[:player_name] and highest = players[:points] if players[:points] > highest
+    end
+  end 
+  return player
+end 
+
+def winning_team
+  winner = nil 
+  highest_team_points = 0
+  game_hash.values.each do |datas|
+    team_points = 0
+    datas[:players].each do |players|
+      team_points += players[:points]
+      highest_team_points = team_points and winner = datas[:team_name] if team_points > highest_team_points
+    end 
+  end 
+  return winner
+end 
+
+def player_with_longest_name
+  player = nil
+  longest = 0
+  game_hash.values.each do |datas|
+    datas[:players].each do |players|
+      player = players[:player_name] and longest = players[:player_name].length if players[:player_name].length > longest
+    end 
+  end 
+  return player
+end 
+
+def long_name_steals_a_ton?
+  long_name = player_with_longest_name
+  steal_king = nil
+  highest_steals = 0
+  game_hash.values.each do |datas|
+    datas[:players].each do |players|
+      steal_king = players[:player_name] and highest_steals = players[:steals] if players[:steals] > highest_steals
+    end 
+  end 
+  true if steal_king == long_name
+end

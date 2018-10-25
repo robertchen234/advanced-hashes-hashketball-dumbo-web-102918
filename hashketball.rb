@@ -70,10 +70,7 @@ end
 def player_stats(name)
   game_hash.values.each do |datas|
     datas[:players].each do |players| 
-      if players.values.include?(name)
-        players.delete(:player_name) 
-        return players
-      end
+      players.delete(:player_name) and return players if players.values.include?(name)
     end
   end 
 end
@@ -125,7 +122,6 @@ def player_with_longest_name
 end 
 
 def long_name_steals_a_ton?
-  long_name = player_with_longest_name
   steal_king = nil
   highest_steals = 0
   game_hash.values.each do |datas|
@@ -133,5 +129,6 @@ def long_name_steals_a_ton?
       steal_king = players[:player_name] and highest_steals = players[:steals] if players[:steals] > highest_steals
     end 
   end 
+  long_name = player_with_longest_name
   true if steal_king == long_name
 end

@@ -108,6 +108,7 @@ def winning_team
   game_hash.each do |turf, details|
     team_points = 0
     details.each do |player|
+      binding.pry
       team_points += player[:points]
       highest_team_points = team_points and winner = turf[:team_name] if team_points > highest_team_points
     end

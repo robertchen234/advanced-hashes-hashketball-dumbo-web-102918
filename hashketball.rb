@@ -34,18 +34,18 @@ def get_players
   player_hash.flatten
 end
 
-def player_bio(name)
+def find_player(name)
   player = get_players.find do |player|
     player[:player_name] == name
   end
 end 
 
 def num_points_scored(name)
-  player_bio(name)[:points]
+  find_player(name)[:points]
 end
 
 def shoe_size(name)
-  player_bio(name)[:shoe]
+  find_player(name)[:shoe]
 end
 
 def team_colors(team)
@@ -61,7 +61,7 @@ def team_names
 end
 
 def pick_side(team)
-  side = game_hash.collect.select do |turf, details|
+  side = game_hash.select do |turf, details|
     return details[:players] if details[:team_name] == team
   end 
   side
@@ -74,67 +74,62 @@ def player_numbers(team)
 end 
 
 def player_stats(name)
-  game_hash.values.each do |datas|
-    datas[:players].each do |players| 
-      players.delete(:player_name) and return players if players.values.include?(name)
-    end
-  end 
+  return find_player(name).reject{|k,v|(k == :player_name)} if find_player(name)[:player_name] == name
 end
+
+def team_datas
+  team_data = game_hash.collect do |turf, details|
+    details[:players]
+  end
+  team_data.flatten
+end 
 
 def big_shoe_rebounds
   rebound = 0
   size = 0
-  game_hash.values.each do |datas|
-    datas[:players].each do |players|
-      size = players[:shoe] and rebound = players[:rebounds] if players[:shoe] > size
-    end 
-  end 
-  return rebound
+  team_datas.collect do |player|
+    size = player[:shoe] and rebound = player[:rebounds] if player[:shoe] > size
+    return rebound
+  end
 end 
 
 def most_points_scored
   highest = 0
-  player = nil
-  game_hash.values.each do |datas|
-    datas[:players].each do |players|
-      player = players[:player_name] and highest = players[:points] if players[:points] > highest
-    end
+  mvp_player = nil
+  team_datas.collect do |player|
+      mvp_player = player[:player_name] and highest = player[:points] if player[:points] > highest
   end 
-  return player
+  return mvp_player
 end 
 
 def winning_team
   winner = nil 
   highest_team_points = 0
-  game_hash.values.each do |datas|
+  game_hash.each do |turf, details|
     team_points = 0
-    datas[:players].each do |players|
-      team_points += players[:points]
-      highest_team_points = team_points and winner = datas[:team_name] if team_points > highest_team_points
-    end 
+    details[:players].each do |player|
+      team_points += player[:points]
+      highest_team_points = team_points and winner = details[:team_name] if team_points > highest_team_points
+    end
   end 
   return winner
 end 
 
 def player_with_longest_name
-  player = nil
+  long_player = nil
   longest = 0
-  game_hash.values.each do |datas|
-    datas[:players].each do |players|
-      player = players[:player_name] and longest = players[:player_name].length if players[:player_name].length > longest
-    end 
+  team_datas.each do |player|
+    long_player = player[:player_name] and longest = player[:player_name].length if player[:player_name].length > longest
   end 
-  return player
+  return long_player
 end 
 
 def long_name_steals_a_ton?
   steal_king = nil
   highest_steals = 0
-  game_hash.values.each do |datas|
-    datas[:players].each do |players|
-      steal_king = players[:player_name] and highest_steals = players[:steals] if players[:steals] > highest_steals
-    end 
+  team_datas.each do |player|
+    steal_king = player[:player_name] and highest_steals = player[:steals] if player[:steals] > highest_steals
   end 
-  long_name = player_with_longest_name
-  true if steal_king == long_name
+  long_player = player_with_longest_name
+  true if steal_king == long_player
 end

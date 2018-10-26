@@ -27,44 +27,50 @@ def game_hash
   }
 end
 
-def num_points_scored(name)
-  game_hash.values.each do |datas|
-    datas[:players].each do |players|
-      return players[:points] if players.values.include?(name)
-    end 
+def get_players
+  player_hash = game_hash.collect do |turf, details|
+    details[:players]
   end
+  player_hash.flatten
+end
+
+def player_bio(name)
+  player = get_players.find do |player|
+    player[:player_name] == name
+  end
+end 
+
+def num_points_scored(name)
+  player_bio(name)[:points]
 end
 
 def shoe_size(name)
-  game_hash.values.each do |datas|
-    datas[:players].each do |players|
-      return players[:shoe] if players.values.include?(name)
-    end 
-  end 
+  player_bio(name)[:shoe]
 end
 
 def team_colors(team)
-  game_hash.values.each do |datas|
-    return datas[:colors].map(&:capitalize) if datas.values.include?(team)
+  game_hash.each do |turf, details|
+    return details[:colors].map(&:capitalize) if details[:team_name] == team
   end 
 end 
 
 def team_names
-  teams = []
-  game_hash.values.each do |datas| 
-    teams << datas[:team_name] 
+  team_array = game_hash.collect do |turf, details| 
+    details[:team_name] 
   end
-  return teams
 end
- 
-def player_numbers(team)
-  numbers = []
-  game_hash.values.each do |datas|
-    datas[:players].each do |players| 
-      numbers << players[:number] if datas.values.include?(team)
-    end 
+
+def pick_side(team)
+  side = game_hash.collect.select do |turf, details|
+    return details[:players] if details[:team_name] == team
   end 
-  return numbers
+  side
+end 
+
+def player_numbers(team)
+  jerseys = pick_side(team).collect do |player|
+    player[:number]
+  end
 end 
 
 def player_stats(name)

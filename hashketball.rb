@@ -102,21 +102,15 @@ def most_points_scored
   return mvp_player
 end 
 
-def reset_points
-  reset = game_hash.collect do |turf, details|
-    team_points = 0 
-    details[:players]
-  end 
-  reset.flatten
-  binding.pry
-end 
-
 def winning_team
   winner = nil 
   highest_team_points = 0
-  reset_points.each do |player|
-    team_points += player[:points]
-    highest_team_points = team_points and winner = turf[:team_name] if team_points > highest_team_points
+  game_hash.each do |turf, details|
+    team_points = 0
+    details.each do |player|
+      team_points += player[:points]
+      highest_team_points = team_points and winner = turf[:team_name] if team_points > highest_team_points
+    end
   end 
   return winner
 end 
